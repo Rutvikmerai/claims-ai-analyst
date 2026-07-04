@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Skill(run)",
+      "Bash(python -m pip show anthropic mcp streamlit)",
+      "Bash(python -m streamlit run app.py --server.headless true)"
+    ]
+  }
+}

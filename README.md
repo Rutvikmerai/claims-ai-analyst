@@ -1,4 +1,4 @@
-# Claims Data Assistant — Natural Language Querying for Healthcare Claims
+# Claims Data Assistant - Natural Language Querying for Healthcare Claims
 
 ## Problem
 

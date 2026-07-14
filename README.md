@@ -62,7 +62,7 @@ source venv/bin/activate        # Windows: venv\Scripts\activate
 pip install -r requirements.txt
 
 # 2. Build the sample database
-python3 db/create_db.py
+py create_db.py
 
 # 3. Set your Anthropic API key
 export ANTHROPIC_API_KEY=your-api-key-here   # or paste it into the app's UI field

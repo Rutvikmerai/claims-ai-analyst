@@ -32,8 +32,8 @@ from mcp.client.stdio import stdio_client
 MODEL = "claude-sonnet-4-6"
 SERVER_SCRIPT = os.path.join(os.path.dirname(__file__), "mcp_server.py")
 DEFAULT_DB_PATH = Path(__file__).parent / "db" / "claims.db"
-MAX_QUESTIONS_PER_SESSION = 5       # per-visitor cap, resets if they reload the page
-MAX_QUESTIONS_PER_DAY_GLOBAL = 150  # shared cap across ALL visitors, resets at midnight UTC
+MAX_QUESTIONS_PER_SESSION = 3       # per-visitor cap, resets if they reload the page
+MAX_QUESTIONS_PER_DAY_GLOBAL = 50  # shared cap across ALL visitors, resets at midnight UTC
 USAGE_FILE = Path(__file__).parent / ".daily_usage.txt"
 
 st.set_page_config(page_title="Claims Data Assistant", page_icon="📊", layout="centered")

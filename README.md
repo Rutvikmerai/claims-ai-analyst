@@ -91,6 +91,35 @@ These aren't in the happy-path demo set on purpose - they're there to show the a
 - **"What's driving the pharmacy rejections?"** — Partially answerable. The schema has `rejection_reason` but no true root-cause data, so Claude can break down rejection reasons by count (e.g., "Duplicate claim" is the top reason at 26 occurrences) but can't explain underlying causes beyond that. Good to narrate in an interview: "the assistant answers what the data supports and doesn't overreach into causal claims it can't back up."
 - **"Update claim 105's status to Paid."** — An out-of-scope write request. The MCP server's `run_sql_query` tool rejects anything that isn't a `SELECT` before it reaches SQLite, so this fails safely with a clear message rather than silently doing nothing or erroring unpredictably. This is the best moment to demo the safety design if someone asks "what stops the AI from messing up the database."
 
+## Running It as a Public Demo (no API key required from visitors)
+
+If you want to share a live link (e.g. on LinkedIn) where anyone can try it without owning an Anthropic API key, the app supports a **host-provided key** via `st.secrets`, so visitors never see or enter one:
+
+1. Deploy on [Streamlit Community Cloud](https://share.streamlit.io) from your GitHub repo.
+2. In the app's settings → **Secrets**, add:
+   ```
+   ANTHROPIC_API_KEY = "your-key-here"
+   ```
+3. `get_api_key()` in `app.py` picks this up automatically — the manual key input box only appears as a fallback if no secret or environment variable is set.
+
+**Because the app is now running on your key for anyone with the link, two safeguards are built in to protect you from cost abuse:**
+
+- **Per-session limit** (`MAX_QUESTIONS_PER_SESSION`, default 5) — each visitor gets a handful of free questions before being asked to reload or run it locally with their own key.
+- **Global daily limit** (`MAX_QUESTIONS_PER_DAY_GLOBAL`, default 150) — a shared cap across *all* visitors combined, tracked in a simple file next to the app and reset at midnight. This is the real backstop against a bot or a viral spike running up your bill overnight.
+
+Both are adjustable constants at the top of `app.py`. They're intentionally simple (a session counter and a text-file counter) rather than a database or Redis - appropriate for a low-traffic portfolio demo, not meant to survive serious scale.
+
+**One more thing to do regardless of these in-app limits:** set a hard monthly spending cap on the API key itself in the [Anthropic Console](https://console.anthropic.com) before sharing the link publicly. The in-app limits are the first line of defense; the console spending cap is the one that can't be bypassed even if there's a bug in the counter logic.
+
+## Upload Your Own Data
+
+The app supports two data source modes, selectable from a toggle at the top of the UI:
+
+- **Sample healthcare claims data** — the default, used for all the example and edge-case questions above.
+- **Upload your own CSV** — drop in any CSV (up to 20,000 rows for this demo) and the app converts it to a temporary SQLite database on the fly, then serves it through the exact same MCP pipeline. Column names are automatically sanitized (spaces, parentheses, and other special characters get stripped) so they're always valid SQL identifiers, and Claude infers the business meaning of your columns from their names to write relevant queries.
+
+This is possible with zero changes to `mcp_server.py` itself — the MCP server accepts an optional database path as a command-line argument, so it doesn't matter whether it's serving the sample claims data or a database built from someone's uploaded spreadsheet. The decoupling between the AI layer and the data layer that MCP provides is what makes this trivial to add.
+
 ## Notes on Design Choices
 
 - **Read-only enforcement happens at the MCP tool level, not the prompt level.** Prompt instructions telling Claude to "only write SELECT queries" are a suggestion; the server-side keyword check is the actual safety boundary. This matters as soon as an LLM is writing SQL against a real database.

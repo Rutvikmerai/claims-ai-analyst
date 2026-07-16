@@ -2,8 +2,9 @@
 mcp_server.py
 
 This is a real MCP (Model Context Protocol) server. It does not call Claude -
-it only exposes the database to any MCP client (Claude Desktop, our Streamlit
-app, or any other MCP-compatible client) through three standard primitives:
+it only exposes a SQLite database to any MCP client (Claude Desktop, our
+Streamlit app, or any other MCP-compatible client) through three standard
+primitives:
 
   - Resource: "schema://claims_db"  -> lets a client read the DB schema
   - Tool:     "run_sql_query"       -> executes a read-only SQL query
@@ -13,14 +14,26 @@ Keeping this as a standalone server (rather than baking SQL logic into the
 Streamlit app) is the whole point of using MCP: the database access layer is
 decoupled from whatever AI client talks to it. You could point Claude
 Desktop at this exact same server file with zero changes.
+
+By default this serves db/claims.db (the sample healthcare claims data). It
+also accepts an optional command-line argument pointing at a different
+SQLite file - this is how the app's "upload your own CSV" mode works: the
+uploaded CSV gets converted to a temporary SQLite database, and this same
+server file is launched pointed at that file instead, with no code changes
+needed. The MCP layer doesn't care what data it's serving - that's the point.
 """
 
+import sys
 import sqlite3
 from pathlib import Path
 
 from mcp.server.fastmcp import FastMCP
 
-DB_PATH = Path(__file__).parent / "claims.db"
+DEFAULT_DB_PATH = Path(__file__).parent / "db" / "claims.db"
+
+# If a path is passed as the first CLI argument, serve that database instead
+# of the default sample claims data. Used by app.py's CSV upload mode.
+DB_PATH = Path(sys.argv[1]) if len(sys.argv) > 1 else DEFAULT_DB_PATH
 
 mcp = FastMCP("claims-db-server")
 

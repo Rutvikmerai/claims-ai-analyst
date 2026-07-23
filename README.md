@@ -100,12 +100,12 @@ If you want to share a live link (e.g. on LinkedIn) where anyone can try it with
    ```
    ANTHROPIC_API_KEY = "your-key-here"
    ```
-3. `get_api_key()` in `app.py` picks this up automatically — the manual key input box only appears as a fallback if no secret or environment variable is set.
+3. `get_api_key()` in `app.py` picks this up automatically - the manual key input box only appears as a fallback if no secret or environment variable is set.
 
 **Because the app is now running on your key for anyone with the link, two safeguards are built in to protect you from cost abuse:**
 
-- **Per-session limit** (`MAX_QUESTIONS_PER_SESSION`, default 5) — each visitor gets a handful of free questions before being asked to reload or run it locally with their own key.
-- **Global daily limit** (`MAX_QUESTIONS_PER_DAY_GLOBAL`, default 150) — a shared cap across *all* visitors combined, tracked in a simple file next to the app and reset at midnight. This is the real backstop against a bot or a viral spike running up your bill overnight.
+- **Per-session limit** (`MAX_QUESTIONS_PER_SESSION`, default 5) - each visitor gets a handful of free questions before being asked to reload or run it locally with their own key.
+- **Global daily limit** (`MAX_QUESTIONS_PER_DAY_GLOBAL`, default 150) - a shared cap across *all* visitors combined, tracked in a simple file next to the app and reset at midnight. This is the real backstop against a bot or a viral spike running up your bill overnight.
 
 Both are adjustable constants at the top of `app.py`. They're intentionally simple (a session counter and a text-file counter) rather than a database or Redis - appropriate for a low-traffic portfolio demo, not meant to survive serious scale.
 
@@ -115,10 +115,10 @@ Both are adjustable constants at the top of `app.py`. They're intentionally simp
 
 The app supports two data source modes, selectable from a toggle at the top of the UI:
 
-- **Sample healthcare claims data** — the default, used for all the example and edge-case questions above.
-- **Upload your own CSV** — drop in any CSV (up to 20,000 rows for this demo) and the app converts it to a temporary SQLite database on the fly, then serves it through the exact same MCP pipeline. Column names are automatically sanitized (spaces, parentheses, and other special characters get stripped) so they're always valid SQL identifiers, and Claude infers the business meaning of your columns from their names to write relevant queries.
+- **Sample healthcare claims data** - the default, used for all the example and edge-case questions above.
+- **Upload your own CSV** - drop in any CSV (up to 20,000 rows for this demo) and the app converts it to a temporary SQLite database on the fly, then serves it through the exact same MCP pipeline. Column names are automatically sanitized (spaces, parentheses, and other special characters get stripped) so they're always valid SQL identifiers, and Claude infers the business meaning of your columns from their names to write relevant queries.
 
-This is possible with zero changes to `mcp_server.py` itself — the MCP server accepts an optional database path as a command-line argument, so it doesn't matter whether it's serving the sample claims data or a database built from someone's uploaded spreadsheet. The decoupling between the AI layer and the data layer that MCP provides is what makes this trivial to add.
+This is possible with zero changes to `mcp_server.py` itself - the MCP server accepts an optional database path as a command-line argument, so it doesn't matter whether it's serving the sample claims data or a database built from someone's uploaded spreadsheet. The decoupling between the AI layer and the data layer that MCP provides is what makes this trivial to add.
 
 ## Notes on Design Choices
 
